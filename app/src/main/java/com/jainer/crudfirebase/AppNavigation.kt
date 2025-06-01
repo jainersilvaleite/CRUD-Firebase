@@ -18,11 +18,11 @@ fun AppNavigation(modifier: Modifier = Modifier) {
             LoginScreen(navController = navController, modifier = modifier)
         }
 
-        composable(AppRoutes.loginScreen) {
+        composable(AppRoutes.signupScreen) {
             SignupScreen(navController = navController, modifier = modifier)
         }
 
-        composable(AppRoutes.loginScreen) {
+        composable(AppRoutes.homeScreen) {
             HomeScreen(navController = navController, modifier = modifier)
         }
     }
