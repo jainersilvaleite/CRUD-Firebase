@@ -6,22 +6,27 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.jainer.crudfirebase.ui.theme.CRUDFirebaseTheme
 
 class MainActivity : ComponentActivity() {
+    private lateinit var auth: FirebaseAuth
     private lateinit var databaseReference: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        auth = FirebaseAuth.getInstance()
         databaseReference = FirebaseDatabase.getInstance().getReference("Texts")
 
         setContent {
             CRUDFirebaseTheme {
-                AppNavigation(databaseReference)
+                AppNavigation(auth, databaseReference)
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.jainer.crudfirebase
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,22 +18,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.jainer.crudfirebase.ui.theme.CRUDFirebaseTheme
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun SignupScreen(
+    auth: FirebaseAuth,
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
     var email by rememberSaveable { mutableStateOf("") }
     var senha by rememberSaveable { mutableStateOf("") }
+    val context = LocalContext.current
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -60,25 +62,42 @@ fun SignupScreen(
         Spacer(modifier = modifier.height(20.dp))
         OutlinedButton(
             onClick = {
-                // CÓDIGO DE CADASTRO DE CONTA
-                navController.navigate(AppRoutes.loginScreen)
+                // Criação de um novo usuário (cadastro) a partir do email e senha informados
+                auth.createUserWithEmailAndPassword(email, senha)
+                    .addOnSuccessListener {
+                        Toast.makeText(
+                            context,
+                            "Cadastro realizado com sucesso!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        auth.signOut()
+
+                        if (auth.uid == null) {
+                            navController.navigate(AppRoutes.loginScreen)
+                        }
+                    }
+                    .addOnFailureListener { failure ->
+                        Toast.makeText(
+                            context,
+                            "Ocorreu um erro ao fazer cadastro: ${failure.message}!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
             }
         ) {
             Text(text = "Criar conta")
         }
         Spacer(modifier = modifier.height(10.dp))
         OutlinedButton(
-            onClick = { navController.navigate(AppRoutes.loginScreen) }
+            onClick = {
+                navController.navigate(route = AppRoutes.loginScreen) {
+                    popUpTo(0) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
         ) {
             Text(text = "Já tenho uma conta")
         }
-    }
-}
-
-@Preview
-@Composable
-private fun SignupScreen() {
-    CRUDFirebaseTheme {
-        SignupScreen(rememberNavController())
     }
 }
